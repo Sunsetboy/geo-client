@@ -1,0 +1,23 @@
+{
+  "name": "yurcrm/geo-client",
+  "description": "API client for geo service",
+  "version": "1.0.0",
+  "authors": [
+    {
+      "name": "Michael Krutikov",
+      "email": "misha.sunsetboy@gmail.com",
+      "role": "Developer"
+    }
+  ],
+  "license": "MIT",
+  "require": {
+    "php": "^5.5 || ^7.0",
+    "ext-curl": "*",
+    "guzzlehttp/guzzle": "~6.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "GeoServiceClient\\": "src/"
+    }
+  }
+}
