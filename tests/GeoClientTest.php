@@ -3,6 +3,8 @@
 
 use GeoServiceClient\exceptions\UnauthorizedException;
 use GeoServiceClient\GeoClient;
+use GeoServiceClient\models\Region;
+use GeoServiceClient\models\Town;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
@@ -27,6 +29,7 @@ class GeoClientTest extends TestCase
 
         $town = $geoClient->getTownById(33);
 
+        $this->assertInstanceOf(Town::class, $town);
         $this->assertEquals("Апрелевка", $town->getName());
 
         // имитация ответа со статусом 401
@@ -48,9 +51,10 @@ class GeoClientTest extends TestCase
 
         $geoClient = $this->getGeoClientWithMockedHttpClient($jsonResponse, $httpStatusCode);
 
-        $town = $geoClient->getRegionById(33);
+        $region = $geoClient->getRegionById(33);
+        $this->assertInstanceOf(Region::class, $region);
 
-        $this->assertEquals("Липецкая область", $town->getName());
+        $this->assertEquals("Липецкая область", $region->getName());
     }
 
     /**
