@@ -3,6 +3,7 @@
 namespace GeoServiceClient;
 
 use GeoServiceClient\exceptions\UnauthorizedException;
+use GeoServiceClient\models\Region;
 use GeoServiceClient\models\Town;
 use GuzzleHttp\Client;
 
@@ -17,6 +18,11 @@ class GeoClient
      */
     protected $adminToken;
 
+    /**
+     * GeoClient constructor.
+     * @param string $geoApiUrl
+     * @param string|null $adminToken Нужен для действий, требующих аутентификации
+     */
     public function __construct($geoApiUrl, $adminToken = null)
     {
         $this->httpClient = new Client([
@@ -63,5 +69,26 @@ class GeoClient
         $town->setAttributes($responseArray);
 
         return $town;
+    }
+
+    public function getRegionById($id)
+    {
+        $responseJson = $this->request('GET', '/region/' . $id);
+        $responseArray = json_decode($responseJson, true);
+        $region = new Region();
+        $region->setAttributes($responseArray);
+
+        return $region;
+    }
+
+    /**
+     * @param Client $httpClient
+     * @return GeoClient
+     */
+    public function setHttpClient(Client $httpClient)
+    {
+        $this->httpClient = $httpClient;
+
+        return $this;
     }
 }
