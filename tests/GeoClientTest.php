@@ -103,4 +103,84 @@ class GeoClientTest extends TestCase
 
         return $geoClient;
     }
+
+    public function testGetTownsByIds()
+    {
+        $jsonResponse = json_encode([
+            [
+                "id" => 1,
+                "name" => "Бобруйск",
+                "alias" => "bobruysk",
+            ],
+            [
+                "id" => 2,
+                "name" => "Когалым",
+                "alias" => "kogalym",
+            ],
+        ]);
+        $httpStatusCode = 200;
+
+        $geoClient = $this->getGeoClientWithMockedHttpClient($jsonResponse, $httpStatusCode);
+
+        $towns = $geoClient->getTownsByIds([1,2]);
+
+        $this->assertIsArray($towns);
+        $this->assertInstanceOf(Town::class, $towns[0]);
+
+        $this->assertEquals("Бобруйск", $towns[0]->getName());
+    }
+
+    public function testGetTowns()
+    {
+        $jsonResponse = json_encode([
+            [
+                "id" => 1,
+                "name" => "Бобруйск",
+                "alias" => "bobruysk",
+                "regionId" => 1,
+            ],
+            [
+                "id" => 2,
+                "name" => "Когалым",
+                "alias" => "kogalym",
+                "regionId" => 1,
+            ],
+        ]);
+        $httpStatusCode = 200;
+
+        $geoClient = $this->getGeoClientWithMockedHttpClient($jsonResponse, $httpStatusCode);
+
+        $towns = $geoClient->getTowns(10, 1, 1);
+
+        $this->assertIsArray($towns);
+        $this->assertInstanceOf(Town::class, $towns[0]);
+
+        $this->assertEquals("Бобруйск", $towns[0]->getName());
+    }
+
+    public function testGetRegions()
+    {
+        $jsonResponse = json_encode([
+            [
+                "id" => 1,
+                "name" => "Брестская область",
+                "alias" => "brestskaya-oblast",
+            ],
+            [
+                "id" => 2,
+                "name" => "Витебская область",
+                "alias" => "vitebskaya-oblast",
+            ],
+        ]);
+        $httpStatusCode = 200;
+
+        $geoClient = $this->getGeoClientWithMockedHttpClient($jsonResponse, $httpStatusCode);
+
+        $regions = $geoClient->getRegions(10, 1);
+
+        $this->assertIsArray($regions);
+        $this->assertInstanceOf(Region::class, $regions[0]);
+
+        $this->assertEquals("Брестская область", $regions[0]->getName());
+    }
 }

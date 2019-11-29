@@ -141,6 +141,30 @@ class GeoClient
     }
 
     /**
+     * Получает массив городов по списку их id
+     * @param integer[] $ids
+     * @return Town[]
+     * @throws GuzzleException
+     * @throws NotFoundException
+     * @throws UnauthorizedException
+     */
+    public function getTownsByIds($ids): array
+    {
+        $getParams = ['ids' => implode(',', $ids)];
+        $responseJson = $this->request('GET', '/town/list-by-id', $getParams);
+        $responseArray = json_decode($responseJson, true);
+
+        $towns = [];
+        foreach ($responseArray as $townInfo) {
+            $town = new Town();
+            $town->setAttributes($townInfo);
+            $towns[] = $town;
+        }
+
+        return $towns;
+    }
+
+    /**
      * Возвращает массив городов согласно критериям поиска
      * @param int $limit
      * @param int|null $regionId
@@ -176,6 +200,14 @@ class GeoClient
         return $towns;
     }
 
+    /**
+     * @param int $limit
+     * @param int|null $countryId
+     * @return Region[]
+     * @throws GuzzleException
+     * @throws NotFoundException
+     * @throws UnauthorizedException
+     */
     public function getRegions($limit = 10, $countryId = null): array
     {
         $getParams = [];
@@ -189,13 +221,13 @@ class GeoClient
         $responseJson = $this->request('GET', '/region/get/', $getParams);
         $responseArray = json_decode($responseJson, true);
 
-        $towns = [];
-        foreach ($responseArray as $townInfo) {
-            $town = new Town();
-            $town->setAttributes($townInfo);
-            $towns[] = $town;
+        $regions = [];
+        foreach ($responseArray as $regionInfo) {
+            $region = new Region();
+            $region->setAttributes($regionInfo);
+            $regions[] = $region;
         }
 
-        return $towns;
+        return $regions;
     }
 }
