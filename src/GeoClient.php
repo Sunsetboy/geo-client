@@ -36,6 +36,17 @@ class GeoClient
     }
 
     /**
+     * @param Client $httpClient
+     * @return GeoClient
+     */
+    public function setHttpClient(Client $httpClient)
+    {
+        $this->httpClient = $httpClient;
+
+        return $this;
+    }
+
+    /**
      * @param string $method
      * @param string $route
      * @param array $queryParams
@@ -69,7 +80,15 @@ class GeoClient
         return $response->getBody();
     }
 
-    public function getTownById($id)
+    /**
+     * Возвращает объект города или выбрасывает исключение, если город не найден
+     * @param integer $id
+     * @return Town
+     * @throws GuzzleException
+     * @throws NotFoundException
+     * @throws UnauthorizedException
+     */
+    public function getTownById($id): Town
     {
         $responseJson = $this->request('GET', '/town/' . $id);
         $responseArray = json_decode($responseJson, true);
@@ -79,7 +98,14 @@ class GeoClient
         return $town;
     }
 
-    public function getRegionById($id)
+    /**
+     * @param integer $id
+     * @return Town
+     * @throws GuzzleException
+     * @throws NotFoundException
+     * @throws UnauthorizedException
+     */
+    public function getRegionById($id): Region
     {
         $responseJson = $this->request('GET', '/region/' . $id);
         $responseArray = json_decode($responseJson, true);
@@ -90,13 +116,86 @@ class GeoClient
     }
 
     /**
-     * @param Client $httpClient
-     * @return GeoClient
+     * Возвращает массив ближайших городов к заданному городу
+     * @param integer $townId
+     * @param int $radius Радиус в километрах
+     * @param int $limit Лимит выборки
+     * @return Town[]
+     * @throws GuzzleException
+     * @throws NotFoundException
+     * @throws UnauthorizedException
      */
-    public function setHttpClient(Client $httpClient)
+    public function getClosestTowns($townId, $radius = 100, $limit = 10): array
     {
-        $this->httpClient = $httpClient;
+        $responseJson = $this->request('GET', '/town/closest/' . $townId . '/radius/' . $radius . '/limit/' . $limit);
+        $responseArray = json_decode($responseJson, true);
 
-        return $this;
+        $towns = [];
+        foreach ($responseArray as $townInfo) {
+            $town = new Town();
+            $town->setAttributes($townInfo);
+            $towns[] = $town;
+        }
+
+        return $towns;
+    }
+
+    /**
+     * Возвращает массив городов согласно критериям поиска
+     * @param int $limit
+     * @param int|null $regionId
+     * @param int|null $countryId
+     * @return Town[]
+     * @throws GuzzleException
+     * @throws NotFoundException
+     * @throws UnauthorizedException
+     */
+    public function getTowns($limit = 10, $regionId = null, $countryId = null): array
+    {
+        $getParams = [];
+        if ($limit) {
+            $getParams['limit'] = $limit;
+        }
+        if ($regionId) {
+            $getParams['regionId'] = $regionId;
+        }
+        if ($countryId) {
+            $getParams['countryId'] = $countryId;
+        }
+
+        $responseJson = $this->request('GET', '/town/get/', $getParams);
+        $responseArray = json_decode($responseJson, true);
+
+        $towns = [];
+        foreach ($responseArray as $townInfo) {
+            $town = new Town();
+            $town->setAttributes($townInfo);
+            $towns[] = $town;
+        }
+
+        return $towns;
+    }
+
+    public function getRegions($limit = 10, $countryId = null): array
+    {
+        $getParams = [];
+        if ($limit) {
+            $getParams['limit'] = $limit;
+        }
+        if ($countryId) {
+            $getParams['countryId'] = $countryId;
+        }
+
+        $responseJson = $this->request('GET', '/region/get/', $getParams);
+        $responseArray = json_decode($responseJson, true);
+
+        $towns = [];
+        foreach ($responseArray as $townInfo) {
+            $town = new Town();
+            $town->setAttributes($townInfo);
+            $towns[] = $town;
+        }
+
+        return $towns;
     }
 }

@@ -10,9 +10,10 @@ class Town extends BaseModel
     protected $alias;
     protected $lat;
     protected $lng;
+    protected $distance;
 
     // Названия свойств, которые можно массово присвоить методом setAttributes
-    protected $fillable = ['id', 'name', 'regionId', 'alias', 'lat', 'lng'];
+    protected $fillable = ['id', 'name', 'regionId', 'alias', 'lat', 'lng', 'distance'];
 
     /**
      * @return integer
@@ -60,5 +61,13 @@ class Town extends BaseModel
     public function getRegionId()
     {
         return $this->regionId;
+    }
+
+    /**
+     * @return float
+     */
+    public function getDistance()
+    {
+        return $this->distance;
     }
 }
