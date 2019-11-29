@@ -230,4 +230,22 @@ class GeoClient
 
         return $regions;
     }
+
+    /**
+     * @param integer $id
+     * @param array $attributes
+     * @return Town
+     * @throws GuzzleException
+     * @throws NotFoundException
+     * @throws UnauthorizedException
+     */
+    public function updateTown($id, $attributes): Town
+    {
+        $responseJson = $this->request('POST', '/town/' . $id, null, $attributes);
+        $responseArray = json_decode($responseJson, true);
+        $town = new Town();
+        $town->setAttributes($responseArray);
+
+        return $town;
+    }
 }

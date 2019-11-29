@@ -183,4 +183,61 @@ class GeoClientTest extends TestCase
 
         $this->assertEquals("Брестская область", $regions[0]->getName());
     }
+
+    /**
+     * @dataProvider providerUpdateTown
+     * @param string $jsonResponse
+     * @param integer $httpStatusCode
+     * @param string $expectedException
+     * @throws NotFoundException
+     * @throws UnauthorizedException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function testUpdateTown($jsonResponse, $httpStatusCode, $expectedException)
+    {
+        if (!is_null($expectedException)) {
+            $this->expectException($expectedException);
+        }
+
+        $geoClient = $this->getGeoClientWithMockedHttpClient($jsonResponse, $httpStatusCode);
+
+        $town = $geoClient->updateTown(1, ['alias' => 'rezinovaya']);
+
+        $this->assertInstanceOf(Town::class, $town);
+        $this->assertEquals("rezinovaya", $town->getAlias());
+    }
+
+    public function providerUpdateTown(): array
+    {
+        return [
+            'not empty response' => [
+                'jsonResponse' => json_encode([
+                    "id" => 33,
+                    "name" => "Апрелевка",
+                    "regionId" => 25,
+                    "alias" => "rezinovaya",
+                    "size" => 0,
+                    "lat" => "55.545166",
+                    "lng" => "37.073220",
+                    "isCapital" => 0
+                ]),
+                'httpStatusCode' => 200,
+                'expectedException' => null,
+            ],
+            'not authorized' => [
+                'jsonResponse' => json_encode([
+                    "id" => 55,
+                ]),
+                'httpStatusCode' => 401,
+                'expectedException' => UnauthorizedException::class,
+            ],
+            'town not found' => [
+                'jsonResponse' => json_encode([
+                    "Town not found"
+                ]),
+                'httpStatusCode' => 404,
+                'expectedException' => NotFoundException::class,
+            ],
+        ];
+    }
 }
