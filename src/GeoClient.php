@@ -2,10 +2,13 @@
 
 namespace GeoServiceClient;
 
+use GeoServiceClient\exceptions\NotFoundException;
 use GeoServiceClient\exceptions\UnauthorizedException;
 use GeoServiceClient\models\Region;
 use GeoServiceClient\models\Town;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
+use Psr\Http\Message\StreamInterface;
 
 class GeoClient
 {
@@ -38,9 +41,10 @@ class GeoClient
      * @param array $queryParams
      * @param array $bodyParams
      * @param array $headers
-     * @return \Psr\Http\Message\StreamInterface
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @return StreamInterface
+     * @throws GuzzleException
      * @throws UnauthorizedException
+     * @throws NotFoundException
      */
     protected function request($method, $route, $queryParams = [], $bodyParams = [], $headers = [])
     {
@@ -56,6 +60,10 @@ class GeoClient
 
         if ($response->getStatusCode() == 401) {
             throw new UnauthorizedException();
+        }
+
+        if ($response->getStatusCode() == 404) {
+            throw new NotFoundException();
         }
 
         return $response->getBody();

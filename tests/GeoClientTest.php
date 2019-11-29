@@ -1,6 +1,7 @@
 <?php
 
 
+use GeoServiceClient\exceptions\NotFoundException;
 use GeoServiceClient\exceptions\UnauthorizedException;
 use GeoServiceClient\GeoClient;
 use GeoServiceClient\models\Region;
@@ -11,19 +12,17 @@ use PHPUnit\Framework\TestCase;
 
 class GeoClientTest extends TestCase
 {
-    public function testGetTownById()
+    /**
+     * @dataProvider providerGetTownById
+     * @param string $jsonResponse
+     * @param integer $httpStatusCode
+     * @param string|null $expectedException
+     */
+    public function testGetTownById($jsonResponse, $httpStatusCode, $expectedException)
     {
-        $jsonResponse = json_encode([
-            "id" => 33,
-            "name" => "Апрелевка",
-            "regionId" => 25,
-            "alias" => "aprelevka",
-            "size" => 0,
-            "lat" => "55.545166",
-            "lng" => "37.073220",
-            "isCapital" => 0
-        ]);
-        $httpStatusCode = 200;
+        if (!is_null($expectedException)) {
+            $this->expectException($expectedException);
+        }
 
         $geoClient = $this->getGeoClientWithMockedHttpClient($jsonResponse, $httpStatusCode);
 
@@ -31,12 +30,40 @@ class GeoClientTest extends TestCase
 
         $this->assertInstanceOf(Town::class, $town);
         $this->assertEquals("Апрелевка", $town->getName());
+    }
 
-        // имитация ответа со статусом 401
-        $httpStatusCode = 401;
-        $geoClient = $this->getGeoClientWithMockedHttpClient($jsonResponse, $httpStatusCode);
-        $this->expectException(UnauthorizedException::class);
-        $geoClient->getTownById(33);
+    public function providerGetTownById(): array
+    {
+        return [
+            'not empty response' => [
+                'jsonResponse' => json_encode([
+                    "id" => 33,
+                    "name" => "Апрелевка",
+                    "regionId" => 25,
+                    "alias" => "aprelevka",
+                    "size" => 0,
+                    "lat" => "55.545166",
+                    "lng" => "37.073220",
+                    "isCapital" => 0
+                ]),
+                'httpStatusCode' => 200,
+                'expectedException' => null,
+            ],
+            'not authorized' => [
+                'jsonResponse' => json_encode([
+                    "id" => 55,
+                ]),
+                'httpStatusCode' => 401,
+                'expectedException' => UnauthorizedException::class,
+            ],
+            'town not found' => [
+                'jsonResponse' => json_encode([
+                    "Town not found"
+                ]),
+                'httpStatusCode' => 404,
+                'expectedException' => NotFoundException::class,
+            ],
+        ];
     }
 
     public function testGetRegionById()
