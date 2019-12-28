@@ -6,6 +6,7 @@ use GeoServiceClient\exceptions\NotFoundException;
 use GeoServiceClient\exceptions\UnauthorizedException;
 use GeoServiceClient\models\Region;
 use GeoServiceClient\models\Town;
+use GeoServiceClient\models\Country;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Psr\Http\Message\StreamInterface;
@@ -90,10 +91,10 @@ class GeoClient
      */
     public function getTownById($id): Town
     {
-        $responseJson = $this->request('GET', '/town/' . $id);
+        $responseJson = $this->request('GET', '/town/get/' . $id);
         $responseArray = json_decode($responseJson, true);
         $town = new Town();
-        $town->setAttributes($responseArray);
+        $town->setAttributes($responseArray[0]);
 
         return $town;
     }
@@ -107,12 +108,29 @@ class GeoClient
      */
     public function getRegionById($id): Region
     {
-        $responseJson = $this->request('GET', '/region/' . $id);
+        $responseJson = $this->request('GET', '/region/get/' . $id);
         $responseArray = json_decode($responseJson, true);
         $region = new Region();
-        $region->setAttributes($responseArray);
+        $region->setAttributes($responseArray[0]);
 
         return $region;
+    }
+
+    /**
+     * @param integer $id
+     * @return Country
+     * @throws GuzzleException
+     * @throws NotFoundException
+     * @throws UnauthorizedException
+     */
+    public function getCountryById($id): Country
+    {
+        $responseJson = $this->request('GET', '/country/get/' . $id);
+        $responseArray = json_decode($responseJson, true);
+        $country = new Country();
+        $country->setAttributes($responseArray[0]);
+
+        return $country;
     }
 
     /**
