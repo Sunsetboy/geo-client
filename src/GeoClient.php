@@ -169,12 +169,13 @@ class GeoClient
      * @param int $limit
      * @param int|null $regionId
      * @param int|null $countryId
+     * @param string|null $search
      * @return Town[]
      * @throws GuzzleException
      * @throws NotFoundException
      * @throws UnauthorizedException
      */
-    public function getTowns($limit = 10, $regionId = null, $countryId = null): array
+    public function getTowns($limit = 10, $regionId = null, $countryId = null, $search = null): array
     {
         $getParams = [];
         if ($limit) {
@@ -185,6 +186,9 @@ class GeoClient
         }
         if ($countryId) {
             $getParams['countryId'] = $countryId;
+        }
+        if ($search) {
+            $getParams['search'] = $search;
         }
 
         $responseJson = $this->request('GET', '/town/get/', $getParams);
@@ -247,5 +251,28 @@ class GeoClient
         $town->setAttributes($responseArray);
 
         return $town;
+    }
+
+    /**
+     * @param integer $id
+     * @param array $attributes
+     * @return Region
+     * @throws GuzzleException
+     * @throws NotFoundException
+     * @throws UnauthorizedException
+     */
+    public function updateRegion($id, $attributes): Region
+    {
+        $responseJson = $this->request(
+            'POST',
+            '/region/' . $id,
+            null,
+            $attributes
+        );
+        $responseArray = json_decode($responseJson, true);
+        $region = new Region();
+        $region->setAttributes($responseArray);
+
+        return $region;
     }
 }
