@@ -138,12 +138,14 @@ class GeoClientTest extends TestCase
                 "name" => "Бобруйск",
                 "alias" => "bobruysk",
                 "regionId" => 1,
+                "regionName" => 'Липецкая область',
             ],
             [
                 "id" => 2,
                 "name" => "Когалым",
                 "alias" => "kogalym",
                 "regionId" => 1,
+                "regionName" => 'Липецкая область',
             ],
         ]);
         $httpStatusCode = 200;
@@ -156,6 +158,7 @@ class GeoClientTest extends TestCase
         $this->assertInstanceOf(Town::class, $towns[0]);
 
         $this->assertEquals("Бобруйск", $towns[0]->getName());
+        $this->assertEquals('Липецкая область', $towns[0]->getRegionName());
     }
 
     public function testGetRegions()
