@@ -41,9 +41,9 @@ class Region extends BaseModel
     }
 
     /**
-     * @return Country
+     * @return Country|null
      */
-    public function getCountry(): Country
+    public function getCountry(): ?Country
     {
         return $this->country;
     }

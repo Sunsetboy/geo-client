@@ -95,7 +95,7 @@ class GeoClient
         $responseJson = $this->request('GET', '/town/get/' . $id, $params);
         $responseArray = json_decode($responseJson, true);
         $town = new Town();
-        $town->setAttributes($responseArray);
+        $town->setAttributes($responseArray[0]);
 
         return $town;
     }
