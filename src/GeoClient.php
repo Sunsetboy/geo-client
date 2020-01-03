@@ -84,14 +84,33 @@ class GeoClient
     /**
      * Возвращает объект города или выбрасывает исключение, если город не найден
      * @param integer $id
+     * @param array $params
      * @return Town
      * @throws GuzzleException
      * @throws NotFoundException
      * @throws UnauthorizedException
      */
-    public function getTownById($id): Town
+    public function getTownById($id, $params = []): Town
     {
-        $responseJson = $this->request('GET', '/town/get/' . $id);
+        $responseJson = $this->request('GET', '/town/get/' . $id, $params);
+        $responseArray = json_decode($responseJson, true);
+        $town = new Town();
+        $town->setAttributes($responseArray);
+
+        return $town;
+    }
+
+    /**
+     * @param string $alias
+     * @param array $params
+     * @return Town
+     * @throws GuzzleException
+     * @throws NotFoundException
+     * @throws UnauthorizedException
+     */
+    public function getTownByAlias($alias, $params = []): Town
+    {
+        $responseJson = $this->request('GET', '/town/alias/' . $alias, $params);
         $responseArray = json_decode($responseJson, true);
         $town = new Town();
         $town->setAttributes($responseArray[0]);
@@ -101,14 +120,33 @@ class GeoClient
 
     /**
      * @param integer $id
+     * @param array $params
      * @return Town
      * @throws GuzzleException
      * @throws NotFoundException
      * @throws UnauthorizedException
      */
-    public function getRegionById($id): Region
+    public function getRegionById($id, $params = []): Region
     {
-        $responseJson = $this->request('GET', '/region/get/' . $id);
+        $responseJson = $this->request('GET', '/region/get/' . $id, $params);
+        $responseArray = json_decode($responseJson, true);
+        $region = new Region();
+        $region->setAttributes($responseArray);
+
+        return $region;
+    }
+
+    /**
+     * @param string $alias
+     * @param array $params
+     * @return Region
+     * @throws GuzzleException
+     * @throws NotFoundException
+     * @throws UnauthorizedException
+     */
+    public function getRegionByAlias($alias, $params = []): Region
+    {
+        $responseJson = $this->request('GET', '/region/alias/' . $alias, $params);
         $responseArray = json_decode($responseJson, true);
         $region = new Region();
         $region->setAttributes($responseArray[0]);
@@ -118,17 +156,18 @@ class GeoClient
 
     /**
      * @param integer $id
+     * @param array $params
      * @return Country
      * @throws GuzzleException
      * @throws NotFoundException
      * @throws UnauthorizedException
      */
-    public function getCountryById($id): Country
+    public function getCountryById($id, $params = []): Country
     {
-        $responseJson = $this->request('GET', '/country/get/' . $id);
+        $responseJson = $this->request('GET', '/country/get/' . $id, $params);
         $responseArray = json_decode($responseJson, true);
         $country = new Country();
-        $country->setAttributes($responseArray[0]);
+        $country->setAttributes($responseArray);
 
         return $country;
     }
@@ -138,14 +177,15 @@ class GeoClient
      * @param integer $townId
      * @param int $radius Радиус в километрах
      * @param int $limit Лимит выборки
+     * @param array $params
      * @return Town[]
      * @throws GuzzleException
      * @throws NotFoundException
      * @throws UnauthorizedException
      */
-    public function getClosestTowns($townId, $radius = 100, $limit = 10): array
+    public function getClosestTowns($townId, $radius = 100, $limit = 10, $params = []): array
     {
-        $responseJson = $this->request('GET', '/town/closest/' . $townId . '/radius/' . $radius . '/limit/' . $limit);
+        $responseJson = $this->request('GET', '/town/closest/' . $townId . '/radius/' . $radius . '/limit/' . $limit, $params);
         $responseArray = json_decode($responseJson, true);
 
         $towns = [];
@@ -161,14 +201,15 @@ class GeoClient
     /**
      * Получает массив городов по списку их id
      * @param integer[] $ids
+     * @param array $params
      * @return Town[]
      * @throws GuzzleException
      * @throws NotFoundException
      * @throws UnauthorizedException
      */
-    public function getTownsByIds($ids): array
+    public function getTownsByIds($ids, $params = []): array
     {
-        $getParams = ['ids' => implode(',', $ids)];
+        $getParams = ['ids' => implode(',', $ids)] + $params;
         $responseJson = $this->request('GET', '/town/list-by-id', $getParams);
         $responseArray = json_decode($responseJson, true);
 
@@ -188,26 +229,29 @@ class GeoClient
      * @param int|null $regionId
      * @param int|null $countryId
      * @param string|null $search
+     * @param array $params
      * @return Town[]
      * @throws GuzzleException
      * @throws NotFoundException
      * @throws UnauthorizedException
      */
-    public function getTowns($limit = 10, $regionId = null, $countryId = null, $search = null): array
+    public function getTowns($limit = 10, $regionId = null, $countryId = null, $search = null, $params = []): array
     {
         $getParams = [];
         if ($limit) {
             $getParams['limit'] = $limit;
         }
         if ($regionId) {
-            $getParams['regionId'] = $regionId;
+            $getParams['region_id'] = $regionId;
         }
         if ($countryId) {
-            $getParams['countryId'] = $countryId;
+            $getParams['country_id'] = $countryId;
         }
         if ($search) {
             $getParams['search'] = $search;
         }
+
+        $getParams += $params;
 
         $responseJson = $this->request('GET', '/town/get/', $getParams);
         $responseArray = json_decode($responseJson, true);
@@ -225,12 +269,13 @@ class GeoClient
     /**
      * @param int $limit
      * @param int|null $countryId
+     * @param array $params
      * @return Region[]
      * @throws GuzzleException
      * @throws NotFoundException
      * @throws UnauthorizedException
      */
-    public function getRegions($limit = 10, $countryId = null): array
+    public function getRegions($limit = 10, $countryId = null, $params = []): array
     {
         $getParams = [];
         if ($limit) {
@@ -239,6 +284,7 @@ class GeoClient
         if ($countryId) {
             $getParams['countryId'] = $countryId;
         }
+        $getParams += $params;
 
         $responseJson = $this->request('GET', '/region/get/', $getParams);
         $responseArray = json_decode($responseJson, true);

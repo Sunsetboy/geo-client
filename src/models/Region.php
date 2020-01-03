@@ -10,11 +10,11 @@ class Region extends BaseModel
     protected $name;
     /** @var string */
     protected $alias;
-    /** @var integer */
-    protected $countryId;
+    /** @var Country */
+    protected $country;
 
     // Названия свойств, которые можно массово присвоить
-    protected $fillable = ['id', 'name', 'countryId', 'alias'];
+    protected $fillable = ['id', 'name', 'alias'];
 
     /**
      * @return int
@@ -41,10 +41,20 @@ class Region extends BaseModel
     }
 
     /**
-     * @return int
+     * @return Country
      */
-    public function getCountryId()
+    public function getCountry(): Country
     {
-        return $this->countryId;
+        return $this->country;
+    }
+
+    /**
+     * @param Country $country
+     * @return Region
+     */
+    public function setCountry(Country $country): Region
+    {
+        $this->country = $country;
+        return $this;
     }
 }

@@ -6,20 +6,21 @@ class Town extends BaseModel
 {
     protected $id;
     protected $name;
-    protected $regionId;
-    protected $regionName;
     protected $alias;
     protected $lat;
     protected $lng;
     protected $distance;
     protected $size;
     protected $isCapital;
+    /** @var Country */
+    protected $country;
+    /** @var Region */
+    protected $region;
 
     // Названия свойств, которые можно массово присвоить методом setAttributes
     protected $fillable = [
-        'id', 'name', 'regionId', 'alias',
-        'lat', 'lng', 'distance', 'size',
-        'regionName', 'isCapital',
+        'id', 'name', 'alias',
+        'lat', 'lng', 'distance', 'size', 'isCapital'
     ];
 
     /**
@@ -63,14 +64,6 @@ class Town extends BaseModel
     }
 
     /**
-     * @return integer
-     */
-    public function getRegionId()
-    {
-        return $this->regionId;
-    }
-
-    /**
      * @return float
      */
     public function getDistance()
@@ -87,18 +80,46 @@ class Town extends BaseModel
     }
 
     /**
-     * @return string
-     */
-    public function getRegionName()
-    {
-        return $this->regionName;
-    }
-
-    /**
      * @return integer
      */
     public function getIsCapital()
     {
         return $this->isCapital;
+    }
+
+    /**
+     * @return Country
+     */
+    public function getCountry(): Country
+    {
+        return $this->country;
+    }
+
+    /**
+     * @return Region
+     */
+    public function getRegion(): Region
+    {
+        return $this->region;
+    }
+
+    /**
+     * @param Country $country
+     * @return Town
+     */
+    public function setCountry(Country $country): Town
+    {
+        $this->country = $country;
+        return $this;
+    }
+
+    /**
+     * @param Region $region
+     * @return Town
+     */
+    public function setRegion(Region $region): Town
+    {
+        $this->region = $region;
+        return $this;
     }
 }

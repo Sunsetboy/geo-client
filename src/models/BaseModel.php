@@ -18,6 +18,18 @@ class BaseModel
             if (property_exists($this, $name) && in_array($name, $this->fillable)) {
                 $this->$name = $value;
             }
+
+            if ($name == 'region' && method_exists($this, 'setRegion')) {
+                $region = new Region();
+                $region->setAttributes($value);
+                $this->setRegion($region);
+            }
+
+            if ($name == 'country' && method_exists($this, 'setCountry')) {
+                $country = new Country();
+                $country->setAttributes($value);
+                $this->setCountry($country);
+            }
         }
     }
 }

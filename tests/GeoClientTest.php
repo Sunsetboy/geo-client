@@ -15,10 +15,11 @@ class GeoClientTest extends TestCase
     /**
      * @dataProvider providerGetTownById
      * @param string $jsonResponse
+     * @param array $params
      * @param integer $httpStatusCode
      * @param string|null $expectedException
      */
-    public function testGetTownById($jsonResponse, $httpStatusCode, $expectedException)
+    public function testGetTownById($jsonResponse, $params, $httpStatusCode, $expectedException)
     {
         if (!is_null($expectedException)) {
             $this->expectException($expectedException);
@@ -26,10 +27,15 @@ class GeoClientTest extends TestCase
 
         $geoClient = $this->getGeoClientWithMockedHttpClient($jsonResponse, $httpStatusCode);
 
-        $town = $geoClient->getTownById(33);
+        $town = $geoClient->getTownById(33, $params);
 
         $this->assertInstanceOf(Town::class, $town);
-        $this->assertEquals("Апрелевка", $town->getName());
+
+        if (isset($params['with'])) {
+            $this->assertEquals("Липецкая область", $town->getRegion()->getName());
+        } else {
+            $this->assertEquals("Апрелевка", $town->getName());
+        }
     }
 
     public function providerGetTownById(): array
@@ -39,13 +45,34 @@ class GeoClientTest extends TestCase
                 'jsonResponse' => json_encode([
                     "id" => 33,
                     "name" => "Апрелевка",
-                    "regionId" => 25,
                     "alias" => "aprelevka",
                     "size" => 0,
                     "lat" => "55.545166",
                     "lng" => "37.073220",
                     "isCapital" => 0
                 ]),
+                'params' => [],
+                'httpStatusCode' => 200,
+                'expectedException' => null,
+            ],
+            'town with region' => [
+                'jsonResponse' => json_encode([
+                    "id" => 33,
+                    "name" => "Лименда",
+                    "alias" => "limenda",
+                    "size" => 0,
+                    "lat" => "55.545166",
+                    "lng" => "37.073220",
+                    "isCapital" => 0,
+                    "region" => [
+                        "id" => 1,
+                        "name" => 'Липецкая область',
+                        "alias" => 'lipetskaya-oblast',
+                    ],
+                ]),
+                'params' => [
+                    'with' => 'region',
+                ],
                 'httpStatusCode' => 200,
                 'expectedException' => null,
             ],
@@ -53,6 +80,7 @@ class GeoClientTest extends TestCase
                 'jsonResponse' => json_encode([
                     "id" => 55,
                 ]),
+                'params' => [],
                 'httpStatusCode' => 401,
                 'expectedException' => UnauthorizedException::class,
             ],
@@ -60,6 +88,7 @@ class GeoClientTest extends TestCase
                 'jsonResponse' => json_encode([
                     "Town not found"
                 ]),
+                'params' => [],
                 'httpStatusCode' => 404,
                 'expectedException' => NotFoundException::class,
             ],
@@ -122,7 +151,7 @@ class GeoClientTest extends TestCase
 
         $geoClient = $this->getGeoClientWithMockedHttpClient($jsonResponse, $httpStatusCode);
 
-        $towns = $geoClient->getTownsByIds([1,2]);
+        $towns = $geoClient->getTownsByIds([1, 2]);
 
         $this->assertIsArray($towns);
         $this->assertInstanceOf(Town::class, $towns[0]);
@@ -137,28 +166,35 @@ class GeoClientTest extends TestCase
                 "id" => 1,
                 "name" => "Бобруйск",
                 "alias" => "bobruysk",
-                "regionId" => 1,
-                "regionName" => 'Липецкая область',
+                "region" => [
+                    "id" => 1,
+                    "name" => 'Липецкая область',
+                    "alias" => 'lipetskaya-oblast',
+                ],
             ],
             [
                 "id" => 2,
-                "name" => "Когалым",
+                "name" => "Бобровнич",
                 "alias" => "kogalym",
-                "regionId" => 1,
-                "regionName" => 'Липецкая область',
+                "region" => [
+                    "id" => 1,
+                    "name" => 'Липецкая область',
+                    "alias" => 'lipetskaya-oblast',
+                ],
             ],
         ]);
         $httpStatusCode = 200;
 
         $geoClient = $this->getGeoClientWithMockedHttpClient($jsonResponse, $httpStatusCode);
 
-        $towns = $geoClient->getTowns(10, 1, 1);
+        $towns = $geoClient->getTowns(10, 1, 1, 'Бобр');
 
         $this->assertIsArray($towns);
         $this->assertInstanceOf(Town::class, $towns[0]);
 
         $this->assertEquals("Бобруйск", $towns[0]->getName());
-        $this->assertEquals('Липецкая область', $towns[0]->getRegionName());
+        $this->assertEquals('Бобровнич', $towns[1]->getName());
+        $this->assertEquals('Липецкая область', $towns[1]->getRegion()->getName());
     }
 
     public function testGetRegions()

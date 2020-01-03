@@ -10,8 +10,12 @@ class RegionTest extends TestCase
         $regionAttributes = [
             'id' => 10,
             'name' => 'Еврейская АО',
-            'countryId' => 2,
             'alias' => 'jewish',
+            'country' => [
+                'id' => 10,
+                'name' => 'Нидерланды',
+                'alias' => 'netherlands',
+            ],
         ];
 
         $region = new Region();
@@ -19,7 +23,7 @@ class RegionTest extends TestCase
 
         $this->assertEquals($regionAttributes['id'], $region->getId());
         $this->assertEquals($regionAttributes['name'], $region->getName());
-        $this->assertEquals($regionAttributes['countryId'], $region->getCountryId());
         $this->assertEquals($regionAttributes['alias'], $region->getAlias());
+        $this->assertEquals($regionAttributes['country']['name'], $region->getCountry()->getName());
     }
 }
