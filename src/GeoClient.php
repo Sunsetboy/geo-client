@@ -23,7 +23,6 @@ class GeoClient
     protected $adminToken;
 
     /**
-     * GeoClient constructor.
      * @param string $geoApiUrl
      * @param string|null $adminToken Нужен для действий, требующих аутентификации
      */
@@ -40,7 +39,7 @@ class GeoClient
      * @param Client $httpClient
      * @return GeoClient
      */
-    public function setHttpClient(Client $httpClient)
+    public function setHttpClient(Client $httpClient): GeoClient
     {
         $this->httpClient = $httpClient;
 
@@ -58,7 +57,7 @@ class GeoClient
      * @throws UnauthorizedException
      * @throws NotFoundException
      */
-    protected function request($method, $route, $queryParams = [], $bodyParams = [], $headers = [])
+    protected function request($method, $route, $queryParams = [], $bodyParams = [], $headers = []): StreamInterface
     {
         if ($this->adminToken) {
             $headers = array_merge($headers, ['X-Auth-Token' => $this->adminToken]);
@@ -92,7 +91,7 @@ class GeoClient
      */
     public function getTownById($id, $params = []): Town
     {
-        $responseJson = $this->request('GET', '/town/get/' . $id, $params);
+        $responseJson = $this->request('GET', '/towns/' . $id, $params);
         $responseArray = json_decode($responseJson, true);
         $town = new Town();
         $town->setAttributes($responseArray[0]);
@@ -110,7 +109,7 @@ class GeoClient
      */
     public function getTownByAlias($alias, $params = []): Town
     {
-        $responseJson = $this->request('GET', '/town/alias/' . $alias, $params);
+        $responseJson = $this->request('GET', '/towns/alias/' . $alias, $params);
         $responseArray = json_decode($responseJson, true);
         $town = new Town();
         $town->setAttributes($responseArray[0]);
@@ -128,7 +127,7 @@ class GeoClient
      */
     public function getRegionById($id, $params = []): Region
     {
-        $responseJson = $this->request('GET', '/region/get/' . $id, $params);
+        $responseJson = $this->request('GET', '/regions/' . $id, $params);
         $responseArray = json_decode($responseJson, true);
         $region = new Region();
         $region->setAttributes($responseArray);
@@ -146,7 +145,7 @@ class GeoClient
      */
     public function getRegionByAlias($alias, $params = []): Region
     {
-        $responseJson = $this->request('GET', '/region/alias/' . $alias, $params);
+        $responseJson = $this->request('GET', '/regions/alias/' . $alias, $params);
         $responseArray = json_decode($responseJson, true);
         $region = new Region();
         $region->setAttributes($responseArray[0]);
@@ -164,7 +163,7 @@ class GeoClient
      */
     public function getCountryById($id, $params = []): Country
     {
-        $responseJson = $this->request('GET', '/country/get/' . $id, $params);
+        $responseJson = $this->request('GET', '/countries/' . $id, $params);
         $responseArray = json_decode($responseJson, true);
         $country = new Country();
         $country->setAttributes($responseArray);
@@ -185,7 +184,8 @@ class GeoClient
      */
     public function getClosestTowns($townId, $radius = 100, $limit = 10, $params = []): array
     {
-        $responseJson = $this->request('GET', '/town/closest/' . $townId . '/radius/' . $radius . '/limit/' . $limit, $params);
+        $params += ['radius' => $radius, 'limit' => $limit];
+        $responseJson = $this->request('GET', '/towns/closest/' . $townId, $params);
         $responseArray = json_decode($responseJson, true);
 
         $towns = [];
@@ -209,8 +209,8 @@ class GeoClient
      */
     public function getTownsByIds($ids, $params = []): array
     {
-        $getParams = ['ids' => implode(',', $ids)] + $params;
-        $responseJson = $this->request('GET', '/town/list-by-id', $getParams);
+        $idsString = implode(',', $ids);
+        $responseJson = $this->request('GET', '/towns/ids/', $idsString, $params);
         $responseArray = json_decode($responseJson, true);
 
         $towns = [];
@@ -253,7 +253,7 @@ class GeoClient
 
         $getParams += $params;
 
-        $responseJson = $this->request('GET', '/town/get/', $getParams);
+        $responseJson = $this->request('GET', '/towns', $getParams);
         $responseArray = json_decode($responseJson, true);
 
         $towns = [];
@@ -286,7 +286,7 @@ class GeoClient
         }
         $getParams += $params;
 
-        $responseJson = $this->request('GET', '/region/get/', $getParams);
+        $responseJson = $this->request('GET', '/regions', $getParams);
         $responseArray = json_decode($responseJson, true);
 
         $regions = [];
@@ -309,7 +309,7 @@ class GeoClient
      */
     public function updateTown($id, $attributes): Town
     {
-        $responseJson = $this->request('POST', '/town/' . $id, null, $attributes);
+        $responseJson = $this->request('PUT', '/towns/' . $id, null, $attributes);
         $responseArray = json_decode($responseJson, true);
         $town = new Town();
         $town->setAttributes($responseArray);
@@ -328,8 +328,8 @@ class GeoClient
     public function updateRegion($id, $attributes): Region
     {
         $responseJson = $this->request(
-            'POST',
-            '/region/' . $id,
+            'PUT',
+            '/regions/' . $id,
             null,
             $attributes
         );
