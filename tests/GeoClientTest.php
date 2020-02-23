@@ -43,13 +43,15 @@ class GeoClientTest extends TestCase
         return [
             'not empty response' => [
                 'jsonResponse' => json_encode([
-                    "id" => 33,
-                    "name" => "Апрелевка",
-                    "alias" => "aprelevka",
-                    "size" => 0,
-                    "lat" => "55.545166",
-                    "lng" => "37.073220",
-                    "isCapital" => 0
+                    [
+                        "id" => 33,
+                        "name" => "Апрелевка",
+                        "alias" => "aprelevka",
+                        "size" => 0,
+                        "lat" => "55.545166",
+                        "lng" => "37.073220",
+                        "isCapital" => 0
+                    ],
                 ]),
                 'params' => [],
                 'httpStatusCode' => 200,
@@ -57,18 +59,20 @@ class GeoClientTest extends TestCase
             ],
             'town with region' => [
                 'jsonResponse' => json_encode([
-                    "id" => 33,
-                    "name" => "Лименда",
-                    "alias" => "limenda",
-                    "size" => 0,
-                    "lat" => "55.545166",
-                    "lng" => "37.073220",
-                    "isCapital" => 0,
-                    "region" => [
-                        "id" => 1,
-                        "name" => 'Липецкая область',
-                        "alias" => 'lipetskaya-oblast',
-                    ],
+                    [
+                        "id" => 33,
+                        "name" => "Лименда",
+                        "alias" => "limenda",
+                        "size" => 0,
+                        "lat" => "55.545166",
+                        "lng" => "37.073220",
+                        "isCapital" => 0,
+                        "region" => [
+                            "id" => 1,
+                            "name" => 'Липецкая область',
+                            "alias" => 'lipetskaya-oblast',
+                        ],
+                    ]
                 ]),
                 'params' => [
                     'with' => 'region',
@@ -98,10 +102,12 @@ class GeoClientTest extends TestCase
     public function testGetRegionById()
     {
         $jsonResponse = json_encode([
-            "id" => 33,
-            "name" => "Липецкая область",
-            "countryId" => 2,
-            "alias" => "lipetskaya",
+            [
+                "id" => 33,
+                "name" => "Липецкая область",
+                "countryId" => 2,
+                "alias" => "lipetskaya",
+            ]
         ]);
         $httpStatusCode = 200;
 

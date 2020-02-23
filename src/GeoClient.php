@@ -52,12 +52,12 @@ class GeoClient
      * @param array $queryParams
      * @param array $bodyParams
      * @param array $headers
-     * @return StreamInterface
+     * @return string
      * @throws GuzzleException
      * @throws UnauthorizedException
      * @throws NotFoundException
      */
-    protected function request($method, $route, $queryParams = [], $bodyParams = [], $headers = []): StreamInterface
+    protected function request($method, $route, $queryParams = [], $bodyParams = [], $headers = []): string
     {
         if ($this->adminToken) {
             $headers = array_merge($headers, ['X-Auth-Token' => $this->adminToken]);
@@ -130,7 +130,7 @@ class GeoClient
         $responseJson = $this->request('GET', '/regions/' . $id, $params);
         $responseArray = json_decode($responseJson, true);
         $region = new Region();
-        $region->setAttributes($responseArray);
+        $region->setAttributes($responseArray[0]);
 
         return $region;
     }
